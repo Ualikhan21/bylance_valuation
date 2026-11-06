@@ -1,0 +1,6 @@
+{
+  "name": "Bylance",
+  "description": "Онлайн-калькулятор оценки и срочного выкупа iPhone в Алматы. Точный расчет цены выкупа и моментальная заявка.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

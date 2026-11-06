@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bylance — скупка iPhone в Алматы</title>
+<meta name="description" content="Узнайте цену выкупа вашего iPhone за минуту и отправьте заявку в WhatsApp.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#" id="brand"></a>
+    <nav class="links">
+      <a class="pill main" data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="pill" data-link="telegram" target="_blank" rel="noopener">Telegram</a>
+      <a class="pill" data-link="gis" target="_blank" rel="noopener">2ГИС</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero wrap">
+  <h1>Узнайте, за сколько мы купим ваш iPhone.</h1>
+  <p class="lead">Нажмите на модель, память и состояние. Цена выкупа появится сразу, а заявка уйдёт нам в WhatsApp одним нажатием.</p>
+  <a class="btn" href="#calc">Оценить iPhone</a>
+</section>
+
+<section id="how" class="wrap block">
+  <h2>Как это работает</h2>
+  <ol class="steps">
+    <li><b>Оцените онлайн</b><span>Ответьте на несколько вопросов о телефоне. Это занимает минуту.</span></li>
+    <li><b>Отправьте заявку</b><span>Готовое сообщение с вашей оценкой откроется в WhatsApp.</span></li>
+    <li><b>Приезжайте с телефоном</b><span>Проверим устройство, подтвердим цену и сразу заплатим.</span></li>
+  </ol>
+</section>
+
+<section id="calc" class="wrap block">
+  <h2>Оценка iPhone</h2>
+  <div class="calc">
+    <div class="qs">
+      <div class="q" id="q1"><h3><i>1</i>Поколение</h3><div class="grid g4" id="gens"></div></div>
+      <div class="q" id="q2" hidden><h3><i>2</i>Версия</h3><div class="grid" id="vars"></div></div>
+      <div class="q" id="q3" hidden><h3><i>3</i>Память</h3><div class="grid" id="stor"></div></div>
+      <div class="q" id="q4" hidden>
+        <h3><i>4</i>Ёмкость аккумулятора</h3>
+        <p class="batt"><output id="bval">100%</output></p>
+        <input type="range" id="battery" min="50" max="100" step="1" value="100" aria-label="Ёмкость аккумулятора, %">
+        <div class="ticks"><span style="left:0">50</span><span style="left:60%">80</span><span style="left:100%">100</span></div>
+        <p class="note">Настройки → Аккумулятор → Состояние аккумулятора</p>
+      </div>
+      <div class="q" id="q5" hidden><h3><i>5</i>Состояние корпуса</h3><div class="grid bodies" id="body"></div></div>
+      <div class="q" id="q6" hidden><h3><i>6</i>Дополнительно</h3><div class="grid wide" id="extras"></div></div>
+    </div>
+    <aside class="result" aria-live="polite">
+      <p class="rl">Цена выкупа</p>
+      <p class="price" id="price">—</p>
+      <p class="rd" id="detail">Ответьте на вопросы, и здесь появится цена.</p>
+      <a class="btn gold" id="send" target="_blank" rel="noopener">Отправить в WhatsApp</a>
+      <p class="rn">Окончательная цена подтверждается после осмотра телефона.</p>
+    </aside>
+  </div>
+</section>
+
+<section id="faq" class="wrap block">
+  <h2>Частые вопросы</h2>
+  <details><summary>Когда я получу деньги?</summary><p>Сразу после осмотра и подтверждения цены, наличными или переводом.</p></details>
+  <details><summary>Что нужно взять с собой?</summary><p>Телефон, удостоверение личности и, если есть, коробку с зарядкой. Перед визитом выйдите из iCloud и сбросьте данные.</p></details>
+  <details><summary>Почему итоговая цена может отличаться?</summary><p>Оценка на сайте основана на ваших ответах. Если состояние телефона отличается от описания, мы объясним, что изменилось.</p></details>
+  <details><summary>Покупаете телефоны с заблокированным iCloud?</summary><p>Нет. Телефон должен быть отвязан от Apple ID.</p></details>
+</section>
+
+<section id="contacts" class="wrap block">
+  <h2>Как нас найти</h2>
+  <div class="contacts" id="cwrap">
+    <div>
+      <p><b data-c="address"></b></p>
+      <p class="muted" data-c="hours"></p>
+      <a class="btn" data-link="gis" target="_blank" rel="noopener">Открыть в 2ГИС</a>
+    </div>
+    <div id="map"></div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap foot">© <span id="year"></span> <span data-c="shopName"></span></footer>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
