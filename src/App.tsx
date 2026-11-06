@@ -98,7 +98,15 @@ export default function App() {
   }, [selectedStorage]);
 
   const toggleExtra = useCallback((id: string) => {
-    setSelectedExtras((prev) => ({ ...prev, [id]: !prev[id] }));
+    setSelectedExtras((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      if (id === 'replaced_screen_orig' && next[id]) {
+        next.replaced_screen = false;
+      } else if (id === 'replaced_screen' && next[id]) {
+        next.replaced_screen_orig = false;
+      }
+      return next;
+    });
   }, []);
 
   const handleReset = useCallback(() => {

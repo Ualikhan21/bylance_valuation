@@ -320,8 +320,9 @@ export const EXTRAS_OPTIONS: ExtraDefect[] = [
   { id: "esim_only", label: "Только eSIM (США)", cut: 0, isEsimOnly: true },
   { id: "no_box", label: "Нет коробки и зарядки", cut: 3 },
   { id: "broken_biometrics", label: "Не работает Face ID / Touch ID", cut: 15 },
-  { id: "replaced_screen", label: "Менялся экран (неоригинал)", cut: 10 },
   { id: "replaced_glass", label: "Менялось заднее стекло", cut: 5 },
+  { id: "replaced_screen_orig", label: "Менялся экран (оригинал)", cut: 5 },
+  { id: "replaced_screen", label: "Менялся экран (неоригинал)", cut: 10 },
 ];
 
 export const BLOCKED_REASON = "Заблокирован iCloud / чужой Apple ID";
