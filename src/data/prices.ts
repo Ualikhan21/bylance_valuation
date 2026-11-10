@@ -2,7 +2,7 @@
  * ============================================================================
  * 📱 BYLANCE — ЕДИНЫЙ ФАЙЛ НАСТРОЕК И ЦЕН
  * ============================================================================
- * Все цены на новые и Б/У телефоны, точные цвета по спецификации и контакты.
+ * Цены на скупку Б/У телефонов iPhone, правила расчета скидок и контакты.
  */
 
 // 1. ОСНОВНЫЕ ДАННЫЕ МАГАЗИНА
@@ -20,138 +20,7 @@ export const SITE_INFO = {
 };
 
 // ============================================================================
-// 2. ⭐️ НОВЫЕ IPHONE — ТОЧНЫЕ ЦВЕТА И ХАРАКТЕРИСТИКИ ОТ ПОЛЬЗОВАТЕЛЯ
-// ============================================================================
-export interface ColorOption {
-  name: string;
-  hex: string;
-}
-
-export interface NewIphoneItem {
-  id: string;
-  name: string;
-  series: "18" | "17";
-  badge?: string;
-  colors: ColorOption[];
-  warranty: string;
-  prices: Record<number, number>; // Память в ГБ : цена в ₸
-}
-
-export const NEW_IPHONES_LIST: NewIphoneItem[] = [
-  // --- ЛИНЕЙКА IPHONE 18 (ТОЛЬКО 18 PRO И 18 PRO MAX) ---
-  {
-    id: "ip18pm",
-    name: "iPhone 18 Pro Max",
-    series: "18",
-    badge: "Флагман",
-    warranty: "1 год официальной гарантии",
-    colors: [
-      { name: "Burgundy", hex: "#4D1821" },
-      { name: "Glacier", hex: "#E8F2FF" },
-      { name: "Black", hex: "#3C3C3C" },
-      { name: "Silver", hex: "#E2E2E2" },
-    ],
-    prices: {
-      256: 780000,
-      512: 890000,
-      1024: 990000,
-    },
-  },
-  {
-    id: "ip18p",
-    name: "iPhone 18 Pro",
-    series: "18",
-    badge: "Pro серия",
-    warranty: "1 год официальной гарантии",
-    colors: [
-      { name: "Burgundy", hex: "#4D1821" },
-      { name: "Glacier", hex: "#E8F2FF" },
-      { name: "Black", hex: "#3C3C3C" },
-      { name: "Silver", hex: "#E2E2E2" },
-    ],
-    prices: {
-      256: 690000,
-      512: 790000,
-      1024: 890000,
-    },
-  },
-
-  // --- ЛИНЕЙКА IPHONE 17 ---
-  {
-    id: "ip17pm",
-    name: "iPhone 17 Pro Max",
-    series: "17",
-    badge: "Хит продаж",
-    warranty: "1 год официальной гарантии",
-    colors: [
-      { name: "Cosmic Orange", hex: "#F07832" },
-      { name: "Silver", hex: "#BFC0C0" },
-      { name: "Deep Blue", hex: "#263B58" },
-    ],
-    prices: {
-      256: 650000,
-      512: 750000,
-      1024: 850000,
-    },
-  },
-  {
-    id: "ip17p",
-    name: "iPhone 17 Pro",
-    series: "17",
-    badge: "Pro серия",
-    warranty: "1 год официальной гарантии",
-    colors: [
-      { name: "Cosmic Orange", hex: "#F07832" },
-      { name: "Silver", hex: "#BFC0C0" },
-      { name: "Deep Blue", hex: "#263B58" },
-    ],
-    prices: {
-      256: 580000,
-      512: 670000,
-      1024: 760000,
-    },
-  },
-  {
-    id: "ip17air",
-    name: "iPhone Air (17)",
-    series: "17",
-    badge: "Тонкий корпус",
-    warranty: "1 год официальной гарантии",
-    colors: [
-      { name: "Sky Blue", hex: "#A9CFE9" },
-      { name: "Light Gold", hex: "#DCC6A2" },
-      { name: "Cloud White", hex: "#F1F1EC" },
-      { name: "Space Black", hex: "#292929" },
-    ],
-    prices: {
-      256: 470000,
-      512: 550000,
-      1024: 630000,
-    },
-  },
-  {
-    id: "ip17",
-    name: "iPhone 17",
-    series: "17",
-    badge: "Оптимальный",
-    warranty: "1 год официальной гарантии",
-    colors: [
-      { name: "Black", hex: "#252525" },
-      { name: "White", hex: "#F5F5F0" },
-      { name: "Sage", hex: "#A5B99B" },
-      { name: "Mist Blue", hex: "#A5C8DE" },
-      { name: "Lavender", hex: "#B9A5D5" },
-    ],
-    prices: {
-      128: 410000,
-      256: 460000,
-      512: 540000,
-    },
-  },
-];
-
-// ============================================================================
-// 3. ⭐️ ЦЕНЫ НА СКУПКУ / ВЫКУП Б/У IPHONE (В ИДЕАЛЬНОМ СОСТОЯНИИ В ₸)
+// 2. ⭐️ ЦЕНЫ НА СКУПКУ / ВЫКУП Б/У IPHONE (В ИДЕАЛЬНОМ СОСТОЯНИИ В ₸)
 // ============================================================================
 export interface UsedGeneration {
   gen: string;

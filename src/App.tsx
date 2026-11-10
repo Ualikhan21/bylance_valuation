@@ -12,11 +12,12 @@ import {
   Sun,
   Moon,
   RotateCcw,
-  CheckCircle2
+  CheckCircle2,
+  Menu,
+  X
 } from 'lucide-react';
 import {
   SITE_INFO,
-  NEW_IPHONES_LIST,
   USED_IPHONES_BUYBACK,
   BATTERY_RULES,
   BATTERY_PRESETS,
@@ -25,9 +26,7 @@ import {
   BLOCKED_REASON,
   getEsimDeduction,
   UsedGeneration,
-  BodyOption,
-  NewIphoneItem,
-  ColorOption
+  BodyOption
 } from './data/prices';
 
 // Formatting helpers
@@ -36,6 +35,13 @@ const formatTenge = (val: number) =>
 
 const formatStorage = (gb: number) =>
   gb >= 1024 ? `${gb / 1024} ТБ` : `${gb} ГБ`;
+
+const NAV_LINKS = [
+  { id: 'calc', label: 'Оценка iPhone' },
+  { id: 'how', label: 'Как это работает' },
+  { id: 'faq', label: 'FAQ' },
+  { id: 'contacts', label: 'Контакты' },
+];
 
 export default function App() {
   // Theme state
@@ -46,6 +52,8 @@ export default function App() {
     }
     return false;
   });
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -58,10 +66,26 @@ export default function App() {
     }
   }, [isDark]);
 
-  // Catalog: Filter for new phones (18 and 17)
-  const [newSeriesFilter, setNewSeriesFilter] = useState<'18' | '17'>('18');
-  const [selectedNewStorages, setSelectedNewStorages] = useState<Record<string, number>>({});
-  const [selectedNewColors, setSelectedNewColors] = useState<Record<string, ColorOption>>({});
+  // Smooth scroll handler with sticky header offset
+  const scrollToSection = useCallback((e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      const headerOffset = 76;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+      try {
+        window.history.pushState(null, '', `#${id}`);
+      } catch {
+        // ignore in iframe
+      }
+    }
+  }, []);
 
   // Calculator State (Used iPhones)
   const [selectedGen, setSelectedGen] = useState<UsedGeneration>(USED_IPHONES_BUYBACK[1]); // iPhone 17
@@ -196,23 +220,12 @@ export default function App() {
     return `https://wa.me/${SITE_INFO.whatsapp}?text=${encodeURIComponent(msg)}`;
   }, [calculation, selectedModel, selectedStorage, batteryPct, selectedBody]);
 
-  // WhatsApp URL for New Phone order
-  const getWaUrlBuyNew = useCallback((item: NewIphoneItem, storage: number, price: number, color: ColorOption) => {
-    const text = `Здравствуйте! Хочу заказать новый запечатанный ${item.name} на ${formatStorage(storage)}, цвет: ${color.name}. Цена: ${formatTenge(price)}. Подскажите наличие?`;
-    return `https://wa.me/${SITE_INFO.whatsapp}?text=${encodeURIComponent(text)}`;
-  }, []);
-
   const copySummary = useCallback(() => {
     const summary = `${selectedModel.name} ${formatStorage(selectedStorage)}, АКБ ${batteryPct}%, ${selectedBody.label}. Расчет: ${formatTenge(calculation.price)}`;
     navigator.clipboard.writeText(summary);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [selectedModel, selectedStorage, batteryPct, selectedBody, calculation.price]);
-
-  // Filtered New iPhones list
-  const filteredNewIphones = useMemo(() => {
-    return NEW_IPHONES_LIST.filter((item) => item.series === newSeriesFilter);
-  }, [newSeriesFilter]);
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-[#f8f9fb] dark:bg-[#0a0d14] text-slate-900 dark:text-slate-100 transition-colors duration-200">
@@ -230,28 +243,21 @@ export default function App() {
           </a>
 
           <nav className="hidden md:flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-            <a href="#calc" className="hover:text-[#5B0601] dark:hover:text-white transition-colors">
-              Оценка iPhone
-            </a>
-            <span className="text-slate-300 dark:text-slate-700 select-none">·</span>
-            <a href="#new-iphones" className="hover:text-[#5B0601] dark:hover:text-white transition-colors">
-              Новые iPhone
-            </a>
-            <span className="text-slate-300 dark:text-slate-700 select-none">·</span>
-            <a href="#how" className="hover:text-[#5B0601] dark:hover:text-white transition-colors">
-              Как это работает
-            </a>
-            <span className="text-slate-300 dark:text-slate-700 select-none">·</span>
-            <a href="#faq" className="hover:text-[#5B0601] dark:hover:text-white transition-colors">
-              FAQ
-            </a>
-            <span className="text-slate-300 dark:text-slate-700 select-none">·</span>
-            <a href="#contacts" className="hover:text-[#5B0601] dark:hover:text-white transition-colors">
-              Контакты
-            </a>
+            {NAV_LINKS.map((link, idx) => (
+              <React.Fragment key={link.id}>
+                {idx > 0 && <span className="text-slate-300 dark:text-slate-700 select-none">·</span>}
+                <a
+                  href={`#${link.id}`}
+                  onClick={(e) => scrollToSection(e, link.id)}
+                  className="hover:text-[#5B0601] dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  {link.label}
+                </a>
+              </React.Fragment>
+            ))}
           </nav>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setIsDark(!isDark)}
               aria-label="Сменить тему"
@@ -267,10 +273,35 @@ export default function App() {
               className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white transition-all shadow-sm flex items-center gap-1.5"
             >
               <MessageCircle className="w-3.5 h-3.5 fill-current" />
-              <span>WhatsApp</span>
+              <span className="hidden xs:inline">WhatsApp</span>
             </a>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Меню навигации"
+              className="md:hidden p-2 rounded-xl text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors border border-slate-200 dark:border-white/10"
+            >
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-[#0a0d14]/95 backdrop-blur-md px-4 py-3 space-y-1 shadow-lg transition-all">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                onClick={(e) => scrollToSection(e, link.id)}
+                className="block px-3 py-2.5 rounded-xl font-bold text-sm text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#181d2a] hover:text-[#5B0601] dark:hover:text-white transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        )}
       </header>
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 space-y-10">
@@ -288,16 +319,10 @@ export default function App() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a
               href="#calc"
-              className="px-6 py-3.5 rounded-xl font-bold text-sm sm:text-base text-white bg-[#5B0601] hover:bg-[#780c05] transition-all shadow-sm active:scale-[0.99]"
+              onClick={(e) => scrollToSection(e, 'calc')}
+              className="px-6 py-3.5 rounded-xl font-bold text-sm sm:text-base text-white bg-[#5B0601] hover:bg-[#780c05] transition-all shadow-sm active:scale-[0.99] cursor-pointer"
             >
-              Оценить iPhone
-            </a>
-
-            <a
-              href="#new-iphones"
-              className="px-6 py-3.5 rounded-xl font-bold text-sm sm:text-base text-slate-800 dark:text-slate-200 bg-white dark:bg-[#121622] border border-slate-200/80 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm"
-            >
-              Новые iPhone
+              Рассчитать стоимость онлайн
             </a>
           </div>
         </section>
@@ -347,7 +372,7 @@ export default function App() {
         </section>
 
         {/* 4. ОЦЕНКА Б/У IPHONE (КАЛЬКУЛЯТОР) */}
-        <section id="calc" className="space-y-6 pt-2 scroll-mt-20">
+        <section id="calc" className="space-y-6 pt-2 scroll-mt-24">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 bg-white dark:bg-[#121622] p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm">
             <div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
@@ -726,7 +751,7 @@ export default function App() {
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>Trade-In: сдача старого в зачёт нового iPhone</span>
+                    <span>Быстрый выкуп с моментальной оплатой</span>
                   </div>
                 </div>
               </div>
@@ -734,160 +759,8 @@ export default function App() {
           </div>
         </section>
 
-        {/* 5. "НОВЫЕ IPHONE" — СЕРИИ 18 И 17 С ВЫБОРОМ ЦВЕТА */}
-        <section id="new-iphones" className="space-y-5 pt-4 scroll-mt-20">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <span className="text-xs font-bold text-[#5B0601] dark:text-amber-400 uppercase tracking-wider">
-                Каталог
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
-                Новые iPhone
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Новые оригинальные запечатанные устройства в коробках с официальной гарантией.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-1.5 p-1 bg-slate-200/70 dark:bg-[#121622] rounded-xl self-start sm:self-auto border border-slate-200 dark:border-white/10">
-              <button
-                onClick={() => setNewSeriesFilter('18')}
-                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
-                  newSeriesFilter === '18'
-                    ? 'bg-[#5B0601] text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5'
-                }`}
-              >
-                Серия 18
-              </button>
-              <button
-                onClick={() => setNewSeriesFilter('17')}
-                className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
-                  newSeriesFilter === '17'
-                    ? 'bg-[#5B0601] text-white dark:bg-white dark:text-slate-900 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/60 dark:hover:bg-white/5'
-                }`}
-              >
-                Серия 17
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {filteredNewIphones.map((item) => {
-              const storages = Object.keys(item.prices).map(Number);
-              const currentStorage = selectedNewStorages[item.id] || storages[0];
-              const currentPrice = item.prices[currentStorage] || item.prices[storages[0]];
-              const currentColor = selectedNewColors[item.id] || item.colors[0];
-
-              return (
-                <div
-                  key={item.id}
-                  className="rounded-2xl p-5 bg-white dark:bg-[#121622] border border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-[#181d2a] text-slate-700 dark:text-slate-300">
-                        {item.series} серия
-                      </span>
-                      {item.badge && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300">
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">
-                      {item.name}
-                    </h3>
-
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between text-xs mb-1.5">
-                        <span className="text-slate-500 dark:text-slate-400">Цвет:</span>
-                        <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[65%]">
-                          {currentColor.name}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center flex-wrap gap-2">
-                        {item.colors.map((c) => {
-                          const isSelectedColor = currentColor.name === c.name;
-                          return (
-                            <button
-                              key={c.name}
-                              type="button"
-                              onClick={() =>
-                                setSelectedNewColors((prev) => ({ ...prev, [item.id]: c }))
-                              }
-                              title={c.name}
-                              className={`w-6 h-6 rounded-md transition-all relative flex items-center justify-center border ${
-                                isSelectedColor
-                                  ? 'ring-2 ring-[#5B0601] dark:ring-white scale-110 border-transparent shadow-sm'
-                                  : 'border-slate-300 dark:border-white/15 hover:scale-105'
-                              }`}
-                              style={{ backgroundColor: c.hex }}
-                            >
-                              {isSelectedColor && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-slate-950 shadow-sm" />
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1.5">Память:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {storages.map((s) => (
-                          <button
-                            key={s}
-                            onClick={() =>
-                              setSelectedNewStorages((prev) => ({ ...prev, [item.id]: s }))
-                            }
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
-                              currentStorage === s
-                                ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white shadow-sm'
-                                : 'bg-slate-50 dark:bg-[#181d2a] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-[#202738] dark:hover:text-white'
-                            }`}
-                          >
-                            {formatStorage(s)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 dark:border-white/10">
-                    <div className="flex items-baseline justify-between mb-3">
-                      <span className="text-xs text-slate-400">Цена:</span>
-                      <span className="text-xl font-extrabold text-[#5B0601] dark:text-white font-mono">
-                        {formatTenge(currentPrice)}
-                      </span>
-                    </div>
-
-                    <a
-                      href={getWaUrlBuyNew(item, currentStorage, currentPrice, currentColor)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-2.5 px-3 rounded-xl font-bold text-xs text-center bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 dark:hover:text-slate-900 transition-all flex items-center justify-center gap-1.5 shadow-sm"
-                    >
-                      <MessageCircle className="w-4 h-4 fill-current text-emerald-400 dark:text-emerald-600" />
-                      <span>Заказать в WhatsApp</span>
-                    </a>
-
-                    <span className="text-[10px] text-slate-400 block text-center mt-2">
-                      {item.warranty}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* 6. HOW IT WORKS */}
-        <section id="how" className="py-10 bg-white dark:bg-[#121622] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm">
+        {/* 5. HOW IT WORKS */}
+        <section id="how" className="py-10 bg-white dark:bg-[#121622] rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm scroll-mt-24">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white text-center mb-8">
             Как это работает
           </h2>
@@ -931,8 +804,8 @@ export default function App() {
           </div>
         </section>
 
-        {/* 7. FAQ */}
-        <section id="faq" className="space-y-4">
+        {/* 6. FAQ */}
+        <section id="faq" className="space-y-4 scroll-mt-24">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white text-center">
             Частые вопросы
           </h2>
@@ -972,8 +845,8 @@ export default function App() {
           </div>
         </section>
 
-        {/* 8. CONTACTS & LOCATION */}
-        <section id="contacts" className="py-4">
+        {/* 7. CONTACTS & LOCATION */}
+        <section id="contacts" className="py-4 scroll-mt-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <span className="text-xs font-bold text-[#5B0601] dark:text-amber-400 uppercase tracking-wider">
@@ -1066,7 +939,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <img src={logoSrc} alt={SITE_INFO.shopName} className="h-6 w-auto rounded" />
             <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {SITE_INFO.shopName} · Скупка и продажа iPhone в Алматы
+              {SITE_INFO.shopName} · Онлайн-оценка и выкуп iPhone в Алматы
             </span>
           </div>
           <div>
